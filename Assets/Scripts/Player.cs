@@ -7,6 +7,9 @@ public class Player : MonoBehaviour
     public float health = 3;
     public float jumpVelocity = 50f;
     public float forceFallVelocity = 50f;
+    public float sideSpeed = 1f;
+    public float minX = -1f;
+    public float maxX = 1f;
 
     private Rigidbody2D rigidbody2d;
     private BoxCollider2D boxCollider2d;
@@ -20,6 +23,7 @@ public class Player : MonoBehaviour
     void Update()
     {
         bool isGrounded = IsGrounded();
+
         if (isGrounded && Input.GetKeyDown(KeyCode.Space))
         {
             rigidbody2d.velocity = Vector2.up * jumpVelocity;
@@ -28,7 +32,29 @@ public class Player : MonoBehaviour
         {
             rigidbody2d.AddForce(Vector2.down * forceFallVelocity);
         }
+
         Crouch(Input.GetKey(KeyCode.S));
+
+        if (Input.GetKey(KeyCode.D))
+        {
+            transform.Translate(Vector2.right * sideSpeed * Time.deltaTime);
+            if (transform.position.x > maxX)
+            {
+                Vector2 pos = transform.position;
+                pos.x = maxX;
+                transform.position = pos;
+            }
+        }
+        if (Input.GetKey(KeyCode.A))
+        {
+            transform.Translate(Vector2.left * sideSpeed * Time.deltaTime);
+            if (transform.position.x < minX)
+            {
+                Vector2 pos = transform.position;
+                pos.x = minX;
+                transform.position = pos;
+            }
+        }
     }
 
     private bool IsGrounded()
