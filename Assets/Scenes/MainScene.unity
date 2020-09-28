@@ -450,6 +450,11 @@ MonoBehaviour:
     m_Bits: 256
   crouchSpriteMask: {fileID: 1317945639}
   health: 3
+  jumpVelocity: 50
+  forceFallVelocity: 50
+  sideSpeed: 10
+  minX: -3
+  maxX: 3
 --- !u!212 &1578492303
 SpriteRenderer:
   m_ObjectHideFlags: 0
