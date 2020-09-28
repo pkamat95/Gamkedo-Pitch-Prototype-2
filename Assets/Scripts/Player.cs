@@ -5,11 +5,11 @@ public class Player : MonoBehaviour
     public LayerMask platformsLayerMask;
     public SpriteMask crouchSpriteMask;
     public float health = 3;
+    public float jumpVelocity = 50f;
+    public float forceFallVelocity = 50f;
 
-    private Rigidbody2D rigidbody2d; 
+    private Rigidbody2D rigidbody2d;
     private BoxCollider2D boxCollider2d;
-    private float jumpVelocity = 50f;
-    private float forceFallVelocity = 50f;
 
     void Start()
     {
