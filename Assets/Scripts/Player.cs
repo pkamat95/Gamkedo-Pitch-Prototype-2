@@ -25,7 +25,7 @@ public class Player : MonoBehaviour
 
     void Update()
     {
-        healthDisplay.text = health.ToString();
+        healthDisplay.text = "Health: " + health.ToString();
 
         if (health <= 0)
         {
