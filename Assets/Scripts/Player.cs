@@ -1,15 +1,13 @@
 ﻿using UnityEngine;
 
-public class PlayerController : MonoBehaviour
+public class Player : MonoBehaviour
 {
-    [SerializeField]
-    private LayerMask platformsLayerMask;
-    [SerializeField]
-    private SpriteMask crouchSpriteMask;
+    public LayerMask platformsLayerMask;
+    public SpriteMask crouchSpriteMask;
+    public float health = 3;
 
     private Rigidbody2D rigidbody2d; 
     private BoxCollider2D boxCollider2d;
-
     private float jumpVelocity = 50f;
     private float forceFallVelocity = 50f;
 
