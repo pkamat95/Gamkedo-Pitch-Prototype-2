@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 public class Player : MonoBehaviour
 {
@@ -11,6 +12,7 @@ public class Player : MonoBehaviour
     public float sideSpeed = 1f;
     public float minX = -1f;
     public float maxX = 1f;
+    public Text healthDisplay;
 
     private Rigidbody2D rigidbody2d;
     private BoxCollider2D boxCollider2d;
@@ -23,6 +25,8 @@ public class Player : MonoBehaviour
 
     void Update()
     {
+        healthDisplay.text = health.ToString();
+
         if (health <= 0)
         {
             SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
