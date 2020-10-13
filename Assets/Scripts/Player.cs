@@ -13,8 +13,6 @@ public class Player : MonoBehaviour
     public float dashVelocity = 25f;
     public float forceFallVelocity = 50f;
     public float sideSpeed = 1f;
-    public float minX = -1f;
-    public float maxX = 1f;
     public Text healthDisplay;
 
     private Rigidbody2D rigidbody2d;
@@ -98,20 +96,6 @@ public class Player : MonoBehaviour
         if (canDash && !isGrounded && Input.GetKeyDown(KeyCode.J) && (x != 0 || y != 0))
         {
             Dash(x, y);
-        }
-
-        // prevent player from going out of boundaries
-        if (transform.position.x > maxX)
-        {
-            Vector2 pos = transform.position;
-            pos.x = maxX;
-            transform.position = pos;
-        }
-        if (transform.position.x < minX)
-        {
-            Vector2 pos = transform.position;
-            pos.x = minX;
-            transform.position = pos;
         }
     }
 
