@@ -4,10 +4,13 @@ using UnityEngine.UI;
 
 public class Player : MonoBehaviour
 {
-    public LayerMask platformsLayerMask;
+    public LayerMask platformsLayerMask; // what counts as a platform (will trigger isGrounded)
     public SpriteMask crouchSpriteMask;
     public float health = 3;
-    public float jumpVelocity = 50f;
+    public float jumpVelocity = 10f;
+    public float fallMultiplier = 2.5f;
+    public float lowJumpMultiplier = 2f;
+    public float dashVelocity = 25f;
     public float forceFallVelocity = 50f;
     public float sideSpeed = 1f;
     public float minX = -1f;
@@ -16,6 +19,7 @@ public class Player : MonoBehaviour
 
     private Rigidbody2D rigidbody2d;
     private BoxCollider2D boxCollider2d;
+    private bool canDash = false;
 
     void Start()
     {
@@ -25,8 +29,14 @@ public class Player : MonoBehaviour
 
     void Update()
     {
+        // Get horizontal and vertical input
+        float x = Input.GetAxisRaw("Horizontal");
+        float y = Input.GetAxisRaw("Vertical");
+
+        // dispay health
         healthDisplay.text = "Health: " + health.ToString();
 
+        // reset level if dead
         if (health <= 0)
         {
             SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
@@ -34,36 +44,58 @@ public class Player : MonoBehaviour
 
         bool isGrounded = IsGrounded();
 
+        // reset dash
+        if (isGrounded)
+        {
+            canDash = true;
+        }
+
+        // jump
         if (isGrounded && Input.GetKeyDown(KeyCode.Space))
         {
             rigidbody2d.velocity = Vector2.up * jumpVelocity;
         }
-        if (!isGrounded && Input.GetKey(KeyCode.S))
+
+        // falling
+        if (rigidbody2d.velocity.y < 0)
+        {
+            rigidbody2d.velocity += Vector2.up * Physics2D.gravity.y * (fallMultiplier - 1) * Time.deltaTime;
+        }
+        else if (rigidbody2d.velocity.y > 0 && !Input.GetKey(KeyCode.Space))
+        {
+            rigidbody2d.velocity += Vector2.up * Physics2D.gravity.y * (lowJumpMultiplier - 1) * Time.deltaTime;
+        }
+
+        // dash
+        if (canDash && !isGrounded && Input.GetKeyDown(KeyCode.LeftShift) && (x != 0 || y != 0))
+        {
+            Dash(x, y);
+        }
+
+        // force fall
+        if (!isGrounded && y == -1)
         {
             rigidbody2d.AddForce(Vector2.down * forceFallVelocity);
         }
 
-        Crouch(Input.GetKey(KeyCode.S));
+        // crouch
+        Crouch(y == -1);
 
-        if (Input.GetKey(KeyCode.D))
+        // move sidewards
+        rigidbody2d.velocity = new Vector2(x * sideSpeed, rigidbody2d.velocity.y);
+
+        // prevent player from going out of boundaries
+        if (transform.position.x > maxX)
         {
-            transform.Translate(Vector2.right * sideSpeed * Time.deltaTime);
-            if (transform.position.x > maxX)
-            {
-                Vector2 pos = transform.position;
-                pos.x = maxX;
-                transform.position = pos;
-            }
+            Vector2 pos = transform.position;
+            pos.x = maxX;
+            transform.position = pos;
         }
-        if (Input.GetKey(KeyCode.A))
+        if (transform.position.x < minX)
         {
-            transform.Translate(Vector2.left * sideSpeed * Time.deltaTime);
-            if (transform.position.x < minX)
-            {
-                Vector2 pos = transform.position;
-                pos.x = minX;
-                transform.position = pos;
-            }
+            Vector2 pos = transform.position;
+            pos.x = minX;
+            transform.position = pos;
         }
     }
 
@@ -106,5 +138,12 @@ public class Player : MonoBehaviour
             spriteMaskPos.y = -verticalOffset;
             crouchSpriteMask.transform.localPosition = spriteMaskPos;
         }
+    }
+
+    public void Dash(float x, float y)
+    {
+        rigidbody2d.velocity = Vector2.zero;
+        rigidbody2d.velocity += new Vector2(x, y).normalized * dashVelocity;
+        canDash = false;
     }
 }
