@@ -20,6 +20,7 @@ public class Player : MonoBehaviour
     private Rigidbody2D rigidbody2d;
     private BoxCollider2D boxCollider2d;
     private bool canDash = false;
+    private bool isDashing = false;
 
     void Start()
     {
@@ -50,39 +51,54 @@ public class Player : MonoBehaviour
             canDash = true;
         }
 
-        // jump
-        if (isGrounded && Input.GetKeyDown(KeyCode.Space))
+        // reset drag (after dash)
+        if (rigidbody2d.drag > 0)
         {
-            rigidbody2d.velocity = Vector2.up * jumpVelocity;
+            rigidbody2d.drag -= 0.2f;
+        }
+        else
+        {
+            rigidbody2d.gravityScale = 3; // Todo: store old gravity, and reset it to that value
+            isDashing = false;
         }
 
-        // falling
-        if (rigidbody2d.velocity.y < 0)
+        if (!isDashing)
         {
-            rigidbody2d.velocity += Vector2.up * Physics2D.gravity.y * (fallMultiplier - 1) * Time.deltaTime;
-        }
-        else if (rigidbody2d.velocity.y > 0 && !Input.GetKey(KeyCode.Space))
-        {
-            rigidbody2d.velocity += Vector2.up * Physics2D.gravity.y * (lowJumpMultiplier - 1) * Time.deltaTime;
+            // jump
+            if (isGrounded && Input.GetKeyDown(KeyCode.Space))
+            {
+                rigidbody2d.velocity = Vector2.up * jumpVelocity;
+            }
+
+            // force fall
+            if (!isGrounded && y == -1)
+            {
+                rigidbody2d.AddForce(Vector2.down * forceFallVelocity);
+            }
+
+            // crouch
+            Crouch(y == -1);
+
+
+            // move sidewards
+            rigidbody2d.velocity = new Vector2(x * sideSpeed, rigidbody2d.velocity.y);
+
+            // falling
+            if (rigidbody2d.velocity.y < 0)
+            {
+                rigidbody2d.velocity += Vector2.up * Physics2D.gravity.y * (fallMultiplier - 1) * Time.deltaTime;
+            }
+            else if (rigidbody2d.velocity.y > 0 && !Input.GetKey(KeyCode.Space))
+            {
+                rigidbody2d.velocity += Vector2.up * Physics2D.gravity.y * (lowJumpMultiplier - 1) * Time.deltaTime;
+            }
         }
 
         // dash
-        if (canDash && !isGrounded && Input.GetKeyDown(KeyCode.LeftShift) && (x != 0 || y != 0))
+        if (canDash && !isGrounded && Input.GetKeyDown(KeyCode.J) && (x != 0 || y != 0))
         {
             Dash(x, y);
         }
-
-        // force fall
-        if (!isGrounded && y == -1)
-        {
-            rigidbody2d.AddForce(Vector2.down * forceFallVelocity);
-        }
-
-        // crouch
-        Crouch(y == -1);
-
-        // move sidewards
-        rigidbody2d.velocity = new Vector2(x * sideSpeed, rigidbody2d.velocity.y);
 
         // prevent player from going out of boundaries
         if (transform.position.x > maxX)
@@ -145,5 +161,8 @@ public class Player : MonoBehaviour
         rigidbody2d.velocity = Vector2.zero;
         rigidbody2d.velocity += new Vector2(x, y).normalized * dashVelocity;
         canDash = false;
+        isDashing = true;
+        rigidbody2d.drag = 10;
+        rigidbody2d.gravityScale = 0;
     }
 }
